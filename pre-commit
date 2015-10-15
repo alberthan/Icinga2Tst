@@ -83,7 +83,7 @@ def unwindDict(file, pDict):
 def parseKeys(pList):
     global spaceKey
     for file in pList:
-        f = open(sys.argv[1] + file, "r")
+        f = open(file, "r")
         try:
             dict = yaml.load(f)
             unwindDict(file, dict)
@@ -104,7 +104,8 @@ def main():
         print "Start parsing YAMLs..."
         parseYAML(yamlList)
         parseSpaceTabLine(yamlList)
-        #parseKeys(yamlList)
+        parseKeys(yamlList)
+
         if grammarGood and spaceLine and spaceKey:
             print "All good for YAML files grammar."
             return 0
