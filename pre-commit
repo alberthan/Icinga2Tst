@@ -54,7 +54,7 @@ def parseYAML(pList):
 def parseSpaceTabLine(pList):
     global spaceLine
     for file in pList:
-        f = open(sys.argv[1] + file, "r")
+        f = open(file, "r")
         line = True
         i = 0
         while line:
@@ -103,7 +103,7 @@ def main():
     if findYAMLs():
         print "Start parsing YAMLs..."
         parseYAML(yamlList)
-        #parseSpaceTabLine(yamlList)
+        parseSpaceTabLine(yamlList)
         #parseKeys(yamlList)
         if grammarGood and spaceLine and spaceKey:
             return 0

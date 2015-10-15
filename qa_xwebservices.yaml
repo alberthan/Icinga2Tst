@@ -34,7 +34,7 @@ authentication:
   wiRelayState: https://qaconsole.ibm.xtify.com/authc-mwp/saml2
   acceptAllSaml2Assertions: false
   apnsCertificateP12Password: "#xtify#"
-
+ 
 server:
   rootPath: '/service/*'
   applicationConnectors:
