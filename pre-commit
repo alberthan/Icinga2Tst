@@ -106,8 +106,10 @@ def main():
         parseSpaceTabLine(yamlList)
         #parseKeys(yamlList)
         if grammarGood and spaceLine and spaceKey:
+            print "All good for YAML files grammar."
             return 0
         else:
+            print "YAML grammar abnormal, please check and commit again."
             return 1
 
 if __name__ == "__main__":

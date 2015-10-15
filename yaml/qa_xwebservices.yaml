@@ -489,7 +489,7 @@ v2plus:
         processingClass: com.xtify.v2plus.messaging.processors.LocalBeaconRegionEventReportProcessor
   localRegionEventProcessorsEnabled: true
 
-                        
+
 partnerForwardingConfigurations:
     silverpop: silverpop_forwarding_v1
     ubx: ubx_forwarding_v1
