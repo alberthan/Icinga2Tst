@@ -16,21 +16,24 @@ grammarGood = True
 spaceLine = True
 spaceKey = True
 
-def findYAMLs(yamlPath):
+modified = re.compile('^[MA]\s+(?P<name>.*)$')
+
+def findYAMLs():
     global yamlList
-    if not os.path.exists(yamlPath):
-        print "yaml file path %s is not existing." % yamlPath
-        return 1
 
-    tmpFiles = os.listdir(yamlPath)
-    for file in tmpFiles:
-        if file.split('.')[-1] == "yaml":
-            yamlList.append(file)
-    if len(yamlList)==0:
-        print "no yaml files found under dir %s." % yamlPath
-        return 1
+    p = subprocess.Popen(['git', 'status', '--porcelain'], stdout=subprocess.PIPE)
+    out, err = p.communicate()
+    for line in out.splitlines():
+        match = modified.match(line)
+        if match:
+            yamlList.append(match.group('name'))
 
-    return 0
+    print yamlList
+    if len(yamlList):
+        return 1
+    else:
+        print "No YAML files modified, pre-commit check will quit."
+        return 0
 
 def parseYAML(pList):
     global grammarGood
@@ -96,15 +99,15 @@ def parseKeys(pList):
 
 def main():
     global grammarGood, spaceLine, spaceKey
-    if findYAMLs(sys.argv[1])!=0:
-        return 1
-    parseYAML(yamlList)
-    parseSpaceTabLine(yamlList)
-    parseKeys(yamlList)
-    if grammarGood and spaceLine and spaceKey:
-        return 0
-    else:
-        return 1
+    if findYAMLs():
+        print "Start parsing YAMLs..."
+        #parseYAML(yamlList)
+        #parseSpaceTabLine(yamlList)
+        #parseKeys(yamlList)
+        if grammarGood and spaceLine and spaceKey:
+            return 0
+        else:
+            return 1
 
 if __name__ == "__main__":
     sys.exit( main( ) )
