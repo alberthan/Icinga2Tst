@@ -16,7 +16,7 @@ grammarGood = True
 spaceLine = True
 spaceKey = True
 
-modified = re.compile('^[MA]\s+(?P<name>.*)$')
+modified = re.compile('^\s*[MA]\s+(?P<name>.*.yaml)$')
 
 def findYAMLs():
     global yamlList
