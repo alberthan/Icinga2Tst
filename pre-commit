@@ -4,6 +4,7 @@ import os
 import re
 import subprocess
 import sys
+import yaml
 
 """
 1. parse basic YAML grammars
@@ -38,12 +39,12 @@ def findYAMLs():
 def parseYAML(pList):
     global grammarGood
     for file in pList:
-        f = open(sys.argv[1] + file, "r")
+        f = open(file, "r")
         try:
             yaml.load(f)
         except Exception as e:
             print e
-            print file + " yaml grammar illegal."
+            print file + " grammar illegal."
             grammarGood = False
         else:
             print file + " grammar is OK."
@@ -101,7 +102,7 @@ def main():
     global grammarGood, spaceLine, spaceKey
     if findYAMLs():
         print "Start parsing YAMLs..."
-        #parseYAML(yamlList)
+        parseYAML(yamlList)
         #parseSpaceTabLine(yamlList)
         #parseKeys(yamlList)
         if grammarGood and spaceLine and spaceKey:
