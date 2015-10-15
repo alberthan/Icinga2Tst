@@ -37,7 +37,7 @@ authentication:
 
 server:
   rootPath: '/service/*'
-  #applicationConnectors:
+  applicationConnectors:
     - type: http  
       port: 9090
   adminConnectors:
