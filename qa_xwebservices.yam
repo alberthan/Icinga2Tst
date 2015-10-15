@@ -1,0 +1,494 @@
+   #
+# Release Version: 0.23.0
+#
+xtifyServices:
+  swaggerUiEnabled: true
+  serviceName: XWebServices
+  devEnvironment: true
+  webResourcesEnabled: true
+  mongoDebugEnabled: false 
+  provisioningResourcesEnabled: true
+  outgoingMetricsScopeList:
+    - a46c6400-9a54-4a83-b488-f89b3df687e0
+  bssEncryptionToken: d1e6a343147459810de17d63ae21eec2
+  bssServerName: apps.ibmsbsdd1.com
+  secureCookieEnabled: true
+  successPortalUrl: https://sso.parature.com/sp/startSSO.ping?PartnerIdpId=https://www-304.ibm.com/FIM/sps/IBM_WWW_SAML20_EXTERNAL/saml20&RequestedFormat=urn:oasis:names:tc:SAML:1.1:nameid-format:emailAddress&TARGET=https%3A%2F%2Fsupport.ibmcloud.com%2Flink%2Fportal%2F5377%2F5383%2Fsso%2F51%3Fresume%3Dhttps%253A%252F%252Fsupport.ibmcloud.com%252Fics%252Fsupport%252Fdefault.asp%253FdeptID%253D5383%2526offering%253Dibmxtify
+
+authentication:
+  hashIterations: 250000
+  saml2IdentityProviderMetadataFile: IBM_WWW_SAML20_EXTERNAL_IBM_WWW_SSO_metadata.xml 
+  saml2IdentityProviderDescriptor: https://www-sso.toronto.ca.ibm.com/FIM/sps/IBM_WWW_SAML20_EXTERNAL/saml20
+  saml2FailureUrl: https://qaconsole.ibm.xtify.com/3.0/pages/auth/login-failure
+  saml2SuccessUrl: https://qaconsole.ibm.xtify.com/3.0/pages/reactor-ui/campaign-manager
+  saml2InactiveAccountUrl: https://qaconsole.ibm.xtify.com/3.0/pages/auth/inactive-account
+  saml2TokenIdentityProviderMetadataFile: IBM_WWW_SAML20_EXTERNAL_IBM_WWW_SSO_metadata.xml
+  saml2TokenIdentityProviderDescriptor: https://www-sso.toronto.ca.ibm.com/FIM/sps/IBM_WWW_SAML20_EXTERNAL/saml20
+  saml2TokenFailureUrl: https://qaconsole.ibm.xtify.com/3.0/pages/auth/login-failure
+  saml2TokenSuccessUrl: https://qaconsole.ibm.xtify.com/3.0/pages/reactor-ui/campaign-manager
+  saml2TokenInactiveAccountUrl: https://qaconsole.ibm.xtify.com/3.0/pages/auth/inactive-account
+  wiPartnerId: https://qaconsole.ibm.xtify.com/authc/saml2
+  wiLoginUrl: https://www-sso.toronto.ca.ibm.com/FIM/sps/IBM_WWW_SAML20_EXTERNAL/saml20/logininitial
+  saml2FilterPath: /authc-mwp/saml2
+  saml2TokenFilterPath: /authc-mwp/saml2token
+  wiRelayState: https://qaconsole.ibm.xtify.com/authc-mwp/saml2
+  acceptAllSaml2Assertions: false
+  apnsCertificateP12Password: "#xtify#"
+
+server:
+  rootPath: '/service/*'
+  applicationConnectors:
+    - type: http  
+      port: 9090
+  adminConnectors:
+    - type: http
+      port: 9091
+
+# 0.7.0 Logging Config
+logging:
+  level: INFO
+  loggers:
+    "com" : INFO
+    "org" : INFO
+    "javax" : INFO
+    "net.sf.ehcache" : INFO
+    "com.xtify" : DEBUG
+    "com.notnoop": INFO
+    "org.opensaml" : INFO
+    "org.apache.shiro" : INFO
+    "freemarker.cache" : INFO
+    "com.wordnik" : INFO
+  appenders:
+  - type: file
+    threshold: ALL
+    currentLogFilename: /opt/log/xweb/server.log
+    archivedLogFilenamePattern: /opt/log/xweb/xtifyservices.%d.log.gz
+    archivedFileCount: 50
+    timeZone: UTC
+  - type: console
+    threshold: DEBUG
+    logFormat: "%highlight(%-5level) [%cyan(%d{ISO8601})] %magenta(%c{25}): %m%n%xEx"
+  - type: syslog
+    host: qalogger01.wdc01.xtify
+    port: 1512
+    threshold: ALL
+    logFormat: "%-5level %d{ISO8601} %c{25}: %m%n%xEx"
+
+jersey:
+  logTraffic: false
+
+
+messaging:
+  producerQueueUrl: failover:(tcp://qapqueue01:61616,tcp://qacqueue01:61616)?randomize=false&backup=true&trackMessages=true&maxReconnectDelay=10000&maxReconnectAttempts=3
+  consumerQueueUrl: failover:(tcp://qacqueue01:61616,tcp://qapqueue01:61616)?randomize=false&backup=true&trackMessages=true&maxReconnectDelay=10000&maxReconnectAttempts=3
+  queues:
+    v3.ApplicationMetrics : 
+      name: V3.QA.METRICS.APPLICATION
+      consumer:
+        enabled: false
+        threadCount: 1
+        prefetch: 1
+        processingClass: com.xtify.v3.processors.metrics.ApplicationMetricsUpdateProcessor
+    v3.CampaignMetrics :
+      name: V3.QA.METRICS.CAMPAIGN
+      consumer:
+        enabled: false
+        threadCount: 1
+        prefetch: 1
+        processingClass: com.xtify.v3.processors.metrics.CampaignMetricsUpdateProcessor
+    v3.HttpCallbacks:
+      name: V3.QA.HTTP_CALLBACKS
+      consumer:
+        enabled: false
+        threadCount: 1
+        prefetch: 1 
+        processingClass: com.xtify.v3.processors.callbacks.HttpCallbackRequestProcessor
+    v3.ListPushes:
+      name: V3.QA.LIST_PUSHES
+      consumer:
+        enabled: false
+        threadCount: 1
+        prefetch: 1
+        processingClass: com.xtify.v3.processors.push.ListPushProcessor
+    v3.SegmentPushes:
+      name: V3.QA.SEGMENT_PUSHES
+      consumer:
+        enabled: false
+        threadCount: 1
+        prefetch: 1
+        processingClass: com.xtify.v3.processors.push.SegmentPushProcessor
+    v3.SegmentPaging:
+      name: V3.QA.SEGMENT_PAGING
+      consumer:
+        enabled: false
+        threadCount: 1
+        prefetch: 1
+        processingClass: com.xtify.v3.processors.push.SegmentPagingProcessor
+    v3.BroadcastPushes:
+      name: V3.QA.BROADCAST_PUSHES
+      consumer:
+        enabled: false
+        threadCount: 1
+        prefetch: 1
+        processingClass: com.xtify.v3.processors.push.BroadcastPushProcessor
+    v3.BroadcastPaging:
+      name: V3.QA.BROADCAST_PAGING
+      consumer:
+        enabled: false
+        threadCount: 1
+        prefetch: 1
+        processingClass: com.xtify.v3.processors.push.BroadcastPagingProcessor
+    v3.ContentAssignment:
+      name: V3.QA.CONTENT_ASSIGNMENT
+      consumer:
+        enabled: false
+        threadCount: 1
+        prefetch: 1
+        processingClass: com.xtify.v3.processors.push.ContentAssignmentProcessor
+    v3.DynamicFieldInsertion:
+      name: V3.QA.DYNAMIC_FIELD_INSERTION
+      consumer:
+        enabled: false
+        threadCount: 1
+        prefetch: 1
+        processingClass: com.xtify.v3.processors.push.DynamicFieldInsertionProcessor
+    v3.InboxRecording:
+      name: V3.QA.INBOX_RECORDING
+      consumer:
+        enabled: false
+        threadCount: 1
+        prefetch: 1
+        processingClass: com.xtify.v3.processors.push.InboxRecordingProcessor
+    v3.PushEngineRouting:
+      name: V3.QA.PUSH_ENGINE_ROUTING
+      consumer:
+        enabled: false
+        threadCount: 1
+        prefetch: 1
+        processingClass: com.xtify.v3.processors.push.PushEngineRoutingProcessor
+    v3.EventProcessing:
+      name: V3.EVENT_PROCESSING
+      consumer:
+        enabled: false
+        threadCount: 1
+        prefetch: 1
+        processingClass: com.xtify.v3.processors.events.EventProcessingProcessor
+    v3.ApnsPushes:
+      name: V3.QA.APNS_PUSHES
+      consumer:
+        enabled: false
+        threadCount: 1
+        prefetch: 1
+        processingClass: com.xtify.v3.processors.push.apns.ApnsPushProcessor
+    v3.GcmPushes:
+      name: V3.GCM_PUSHES
+      consumer:
+        enabled: false
+        threadCount: 1
+        prefetch: 1
+        processingClass: com.xtify.v3.processors.push.gcm.GcmPushProcessor
+    v3.ApnsDirectPushes:
+      name: V3.APNS_DIRECT_PUSHES
+      consumer:
+        enabled: false
+        threadCount: 1
+        prefetch: 1
+        processingClass: com.xtify.v3.processors.push.apns.ApnsDirectPushProcessor
+    v3.GcmDirectPushes:
+      name: V3.GCM_DIRECT_PUSHES
+      consumer:
+        enabled: false 
+        threadCount: 1
+        prefetch: 1
+        processingClass: com.xtify.v3.processors.push.gcm.GcmDirectPushProcessor
+
+# The scheduling queue consumers are disabled by default so that having a full Quartz installation
+# isn't required. If you decide to enable them you'll need to update your quartz.properties file
+# to point to your Quartz database.
+    v3.BroadcastPushScheduling:
+      name: V3.QA.BROADCAST_PUSH_SCHEDULING
+      consumer:
+        enabled: false
+        threadCount: 1
+        prefetch: 1
+        processingClass: com.xtify.v3.processors.scheduling.BroadcastPushSchedulingProcessor
+    v3.ListPushScheduling:
+      name: V3.QA.LIST_PUSH_SCHEDULING
+      consumer:
+        enabled: false
+        threadCount: 1
+        prefetch: 1
+        processingClass: com.xtify.v3.processors.scheduling.ListPushSchedulingProcessor
+    v3.SegmentPushScheduling:
+      name: V3.QA.SEGMENT_PUSH_SCHEDULING
+      consumer:
+        enabled: false
+        threadCount: 1
+        prefetch: 1
+        processingClass: com.xtify.v3.processors.scheduling.SegmentPushSchedulingProcessor
+
+    ## added for 0.14.0
+    v3.EventDispatch:
+     name: V3.EVENT_DISPATCH
+     consumer:
+       enabled: false
+       threadCount: 1
+       prefetch: 1
+       processingClass: com.xtify.v3.processors.events.EventDispatchProcessor
+    v3.RegistrationDispatch:
+     name: V3.REGISTRATION_DISPATCH
+     consumer:
+       enabled: false
+       threadCount: 1
+       prefetch: 1
+       processingClass: com.xtify.v3.processors.registration.RegistrationDispatchProcessor
+    v3.RegistrationUpdateDispatch:
+     name: V3.REGISTRATION_UPDATE_DISPATCH
+     consumer:
+       enabled: false
+       threadCount: 1
+       prefetch: 1
+       processingClass: com.xtify.v3.processors.registration.RegistrationUpdateDispatchProcessor
+    v3.UserAttributeDispatch:
+     name: V3.USER_ATTRIBUTE_DISPATCH
+     consumer:
+       enabled: false
+       threadCount: 1
+       prefetch: 1
+       processingClass: com.xtify.v3.processors.attributes.UserAttributeDispatchProcessor
+    v3.SilverpopRegistrationTranslation:
+     name: V3.SILVERPOP_REGISTRATION_TRANSLATION
+     consumer:
+       enabled: false
+       threadCount: 1
+       prefetch: 1
+       processingClass: com.xtify.v3.processors.translation.silverpop.SilverpopRegistrationTranslationProcessor
+    v3.SilverpopUserAttributeTranslation:
+     name: V3.SILVERPOP_USER_ATTRIBUTE_TRANSLATION
+     consumer:
+       enabled: false
+       threadCount: 1
+       prefetch: 1
+       processingClass: com.xtify.v3.processors.translation.silverpop.SilverpopUserAttributeTranslationProcessor
+    v3.GcmFeedback:
+     name: V3.GCM_FEEDBACK
+     consumer:
+       enabled: false
+       threadCount: 1
+       prefetch: 1
+       processingClass: com.xtify.v3.processors.feedback.gcm.GcmFeedbackProcessor
+    v3.SilverpopEventTranslation:
+     name: V3.SILVERPOP_EVENT_TRANSLATION
+     consumer:
+       enabled: false
+       threadCount: 1
+       prefetch: 1
+       processingClass: com.xtify.v3.processors.translation.silverpop.SilverpopEventTranslationProcessor
+    v3.ApnsFeedback:
+     name: V3.APNS_FEEDBACK
+     consumer:
+       enabled: false
+       threadCount: 1
+       prefetch: 1
+       processingClass: com.xtify.v3.processors.feedback.apns.ApnsFeedbackProcessor
+    v3.ApnsFeedbackJobs:
+     name: V3.APNS_FEEDBACK_JOBS
+     consumer:
+       enabled: false
+       threadCount: 1
+       prefetch: 1
+       processingClass: com.xtify.v3.processors.feedback.apns.ApnsFeedbackJobProcessor
+    v3.UnregistrationDispatch:
+     name: V3.UNREGISTRATION_DISPATCH
+     consumer:
+       enabled: false
+       threadCount: 1
+       prefetch: 1
+       processingClass: com.xtify.v3.processors.registration.UnregistrationDispatchProcessor
+    v3.SilverpopUnregistrationTranslation:
+     name: V3.SILVERPOP_UNREGISTRATION_TRANSLATION
+     consumer:
+       enabled: false
+       threadCount: 1
+       prefetch: 1
+       processingClass: com.xtify.v3.processors.translation.silverpop.SilverpopUnregistrationTranslationProcessor
+    v3.SilverpopFailedRequestReplay:
+     name: V3.SILVERPOP_FAILED_REQUEST_REPLAY
+     consumer:
+       enabled: false
+       threadCount: 1
+       prefetch: 1
+       processingClass: com.xtify.v3.processors.request.silverpop.SilverpopFailedRequestReplayProcessor
+    v3.ReregistrationDispatch:
+     name: V3.REREGISTRATION_DISPATCH
+     consumer:
+       enabled: false
+       threadCount: 1
+       prefetch: 1
+       processingClass: com.xtify.v3.processors.registration.ReregistrationDispatchProcessor
+    v3.SilverpopReregistrationTranslation:
+     name: V3.SILVERPOP_REREGISTRATION_TRANSLATION
+     consumer:
+       enabled: false
+       threadCount: 1
+       prefetch: 1
+       processingClass: com.xtify.v3.processors.translation.silverpop.SilverpopReregistrationTranslationProcessor
+    v3.UbxEventTranslation:
+     name: V3.UBX_EVENT_TRANSLATION
+     consumer:
+       enabled: false
+       threadCount: 1
+       prefetch: 5
+       processingClass: com.xtify.v3.processors.translation.ubx.UbxEventTranslationProcessor
+    v3.PlatformUpgradeProcessing:
+      name: V3.PLATFORM_UPGRADE_PROCESSING
+      consumer:
+        enabled: false
+        threadCount: 1
+        prefetch: 5
+        processingClass: com.xtify.v3.processors.upgrades.PlatformUpgradeProcessingProcessor
+  initialContextFactory : org.apache.activemq.jndi.ActiveMQInitialContextFactory
+
+mongo:
+  eventsDbName: events
+  securityDbName: security
+  statisticsDbName: statistics
+  applicationMetricsDbName: application
+  configurationDbName : configuration
+  notificationDbName : notification
+
+  feedbackServerList: qacentral01db01:27017
+  locationServerList: qacentral01db01:27017
+  usersServerList: qacentral01db01:27017
+  dynamicbagServerList: qacentral01db01:27017
+  eventsServerList: qacentral01db01:27017
+  statisticsServerList: qaclient01db01:27017
+  applicationMetricsServerList: qacentral01db01:27017
+  configurationServerList: qacentral01db01:27017
+  segmentMappingServerList: qacentral01db01:27017
+  securityServerList: qacentral01db01:27017
+  richContentCacheServerList: qacentral01db01:27017
+  notificationServerList: qacentral01db01:27017
+
+reactor:
+  sdkVersion: 1.5.0
+  defaultClientDbServerConfigurationName: client01
+
+v2plus:
+  locationsUrl: api.xtify.com/2.5/app-regions
+  locationsApiKey: AcYpF7K0wM1X
+  beaconsUrl: api.xtify.com/2.5/app-beacon-regions
+  beaconsApiKey: AcYpF7K0wM1X
+  supportedCustomers:
+    - orgId   : 2b56ae0e-db7d-4a8c-841e-27f10bea15c4
+      orgName : Macys
+      apps :
+        - appName : "Macys iOS App"
+          appKey  : "b3dca7d9-6c5d-466a-bb20-44d06cd7f31d"
+          #appKey  : "28ef2c22-803d-474d-bec4-9f11a514f363"
+        - appName : "Macys Android App"
+          appKey  : "78c50acf-de21-4bde-82e9-08cb200585b9"
+          #appKey  : "28ef2c22-803d-474d-bec4-9f11a514f363"
+    - orgId   : 12345
+      orgName : Macys
+      apps :
+        - appName : "Macys iOS App"
+          appKey  : "b3dca7d9-6c5d-466a-bb20-44d06cd7f31d"
+    - orgId   : 12346
+      orgName : Macys
+      apps :
+        - appName : "Macys Android App"
+          appKey  : "ccbf9be5-2eeb-43d6-9149-d2bdbe6a9e2d"
+    - orgId   : "14f5b339-d595-4747-90af-822840c3284c"
+      orgName : iBeacon Test Apps
+      apps :
+        - appName : "iOS iBeacon Test App"
+          appKey  : "11d189f4-b9d2-469d-962d-2a464886be2e"
+        - appName : "Android iBeacon Test App"
+          appKey  : "252bdce8-6d5b-44df-92d9-faf55a6155c6"
+    - orgId   : "9ff88bc0-8b33-40b8-9167-692dabfc6e43"
+      orgName : gilads org
+      apps :
+        - appName : "Gilads App"
+          appKey  : "12345678-4ab7-4633-8a7c-98765432198"
+    - orgId   : ec1dbd77-a2a7-4d78-8db1-0bb7735592c9
+      orgName : MWCStadium
+      apps :
+        - appName : "MWCStadium iOS Dev"
+          appKey  : "90ba261c-f3ba-42c1-afeb-8d27c6506bb9"
+
+   # for CCFS qa20 test
+    - orgId   : "86a80c6b-d656-4c5c-ba9f-83eb40efbfde"
+      orgName : "AndrewC Applications"
+      apps :
+        - appName : "AndrewC CCFS QA20 iOS"
+          appKey  :  "6504fcba-948c-4545-92a6-1c210b413628"
+        - appName : "AndrewC CCFS QA20 GCM"
+          appKey  :  "39f92960-0fe0-4fdc-be86-860a4522ab7b"
+
+  apiServerHostName: sdk.api.xtify.com
+  apiServerReadTimeout: 10000
+  serverList: qacentral01db01.wdc01.xtify:27017
+  dbName: v2Plus
+  queues:
+    v2Plus.LocalRegionEntered:
+      name: V2PLUS.QA.LOCAL_REGION_ENTERED
+      consumer:
+        enabled: false
+        threadCount: 1
+        prefetch: 1
+        processingClass: com.xtify.v2plus.messaging.processors.LocalRegionEnteredProcessor
+    v2Plus.LocalRegionExited:
+      name: V2PLUS.QA.LOCAL_REGION_EXITED
+      consumer:
+        enabled: false
+        threadCount: 1
+        prefetch: 1
+        processingClass: com.xtify.v2plus.messaging.processors.LocalRegionExitedProcessor
+    v2Plus.LocalRegionEventReport:
+      name: V2PLUS.QA.LOCAL_REGION_EVENT_REPORT
+      consumer:
+        enabled: false
+        threadCount: 1
+        prefetch: 1
+        processingClass: com.xtify.v2plus.messaging.processors.LocalRegionEventReportProcessor
+    v2Plus.LocalBeaconRegionEntered:
+      name: V2PLUS.QA.LOCAL_BEACON_REGION_ENTERED
+      consumer:
+        enabled: false
+        threadCount: 1
+        prefetch: 1
+        processingClass: com.xtify.v2plus.messaging.processors.LocalBeaconRegionEnteredProcessor
+    v2Plus.LocalBeaconRegionDwelled:
+      name: V2PLUS.QA.LOCAL_BEACON_REGION_DWELLED
+      consumer:
+        enabled: false
+        threadCount: 1
+        prefetch: 1
+        processingClass: com.xtify.v2plus.messaging.processors.LocalBeaconRegionDwelledProcessor
+    v2Plus.LocalBeaconRegionExitedWithDwell:
+      name: V2PLUS.QA.LOCAL_BEACON_REGION_EXITED_WITH_DWELL
+      consumer:
+        enabled: false
+        threadCount: 1
+        prefetch: 1
+        processingClass: com.xtify.v2plus.messaging.processors.LocalBeaconRegionExitedWithDwellProcessor
+    v2Plus.LocalBeaconRegionExitedWithoutDwell:
+      name: V2PLUS.QA.LOCAL_BEACON_REGION_EXITED_WITHOUT_DWELL
+      consumer:
+        enabled: false
+        threadCount: 1
+        prefetch: 1
+        processingClass: com.xtify.v2plus.messaging.processors.LocalBeaconRegionExitedWithoutDwellProcessor
+    v2Plus.LocalBeaconRegionEventReport:
+      name: V2PLUS.QA.LOCAL_BEACON_REGION_EVENT_REPORT
+      consumer:
+        enabled: false
+        threadCount: 1
+        prefetch: 1
+        processingClass: com.xtify.v2plus.messaging.processors.LocalBeaconRegionEventReportProcessor
+  localRegionEventProcessorsEnabled: true
+
+partnerForwardingConfigurations:
+    silverpop: silverpop_forwarding_v1
+    ubx: ubx_forwarding_v1
